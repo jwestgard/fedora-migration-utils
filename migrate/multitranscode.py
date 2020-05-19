@@ -1,32 +1,42 @@
 #!/usr/bin/env python3
 
 from multiprocessing import Pool
-from multiprocessing import Process
+import csv
 import os
+import subprocess
 import sys
+import time
 
 
-def run_ffmpeg():
-    pass
+INPUTFILE  = sys.argv[1]
+INPUTROOT  = sys.argv[2]
+OUTPUTROOT = sys.argv[3]
+LOGDIR     = sys.argv[4]
 
 
-def info(title):
-    print(title)
-    print('module name:', __name__)
-    print('parent process:', os.getppid())
-    print('process id:', os.getpid())
+def transcode(source, destination):
+    filename  = os.path.basename(source)
+    base, ext = os.path.splitext(filename)
+    inpath    = os.path.join(INPUTROOT, source)
+    outpath   = os.path.join(OUTPUTROOT, destination)
+    logpath   = os.path.join(LOGDIR, base, str(int(time.time())) + '.log')   
 
+    if filename.endswith('mov'):
+        cmd = f"ffmpeg -n -i {inpath} -vcodec h264 -acodec mp2 {outpath}"
+    elif filename.endswith('wav'):
+        cmd = f"ffmpeg -n -i {inpath} -acodec libmp3lame {outpath}"
+    else:
+        cmd = None
 
-def f(name):
-    info('function f')
-    print('hello', name)
+    os.makedirs(os.path.dirname(logpath), exist_ok=True)
+    with open(logpath, 'w') as handle:
+        output = subprocess.run(cmd, stderr=handle, text=True, shell=True)
 
 
 def main():
-    info('main line')
-    p = Process(target=f, args=('bob',))
-    p.start()
-    p.join()
+    files = [tuple(row) for row in csv.reader(open(INPUTFILE))]
+    p = Pool(2)
+    p.starmap(transcode, files)
 
 
 if __name__ == "__main__":

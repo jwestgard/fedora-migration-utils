@@ -14,8 +14,8 @@ def main():
     ccount = 0
     tcount = 0
 
-    dest_root   = "/Volumes/JAW5TB/destination"
-    origin_root = "/Volumes/LIBRDCRProjectsShare"
+    dest_root   = ""
+    origin_root = ""
     efile       = "/Users/westgard/Desktop/error.txt"
     cfile       = "/Users/westgard/Desktop/copy.txt"
     tfile       = "/Users/westgard/Desktop/transcode.txt"
@@ -62,6 +62,7 @@ def main():
 
     acount = sum([len(item.parts) for item in itemset])
     pcount = 0
+    transcode = []
 
     for n, item in enumerate(sorted(itemset), 1):
 
@@ -82,13 +83,13 @@ def main():
                             outdir = os.path.join(
                                 dest_root, item.pathsafe_pid, part.pathsafe_pid
                                 )
-                            os.makedirs(outdir, exist_ok=True)
+                            #os.makedirs(outdir, exist_ok=True)
                             outpath = os.path.join(outdir, asset.filename)
                             if not os.path.isfile(outpath):
                                 inpath = os.path.join(origin_root, asset.path)
                                 print()
                                 print(f"Copying {inpath} to {outpath}")
-                                shutil.copy(inpath, outpath)
+                                #shutil.copy(inpath, outpath)
 
                 elif part.has_master_version():
                     tcount += 1
@@ -98,7 +99,7 @@ def main():
                             outdir = os.path.join(
                                 dest_root, item.pathsafe_pid, part.pathsafe_pid
                                 )
-                            os.makedirs(outdir, exist_ok=True)
+                            #os.makedirs(outdir, exist_ok=True)
                             if asset.ext == "mov":
                                 new_ext = "mp4"
                             elif asset.ext =="wav":
@@ -108,15 +109,23 @@ def main():
                             outpath = os.path.join(
                                 outdir, asset.basename + "." + new_ext
                                 )
-                            with open(tfile, 'a+') as handle:
+                            transcode.append((inpath, outpath))
+                            '''with open(tfile, 'a+') as handle:
                                 cmd = f'ffmpeg -i "{inpath}" "{outpath}"'
-                                handle.write(cmd + '\n')
+                                handle.write(cmd + '\n')'''
 
                 else:
                     print(f"An unknown error occurred with {part.pid}")
                     sys.exit()
 
         pcount += 1
+
+    with open(tfile, 'w') as handle:
+        writer = csv.writer(handle)
+        for item in transcode:
+            writer.writerow(item)
+
+    print(f"items: {len(itemset)} | UMAM: {acount} | Copy: {ccount} | Convert: {tcount}")
 
 if __name__ == "__main__":
     main()

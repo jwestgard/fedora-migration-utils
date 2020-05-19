@@ -1,0 +1,4 @@
+bcast-061572-0001.mov,bcast-061572-0001.mp4
+univarch-057262-0001.mov,univarch-057262-0001.mp4
+bcast-064473-0001.wav,bcast-064473-0001.mp3
+bcast-064473-0002.wav,bcast-064473-0002.mp3
