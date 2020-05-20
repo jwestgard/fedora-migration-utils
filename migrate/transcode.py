@@ -11,9 +11,9 @@ import time
 
 
 #MANIFEST = sys.argv[1]
-SRCDIR   = "data/input"
-DSTDIR   = "data/output"
-LOGDIR   = "data/logs"
+SRCDIR   = "/libr/archives/projectsexport"
+DSTDIR   = "/libr/avalonmigration/data"
+LOGDIR   = "/libr/avalonmigration/logs"
 
 
 def get_args():
@@ -33,9 +33,9 @@ def transcode(**kwargs):
     logpath = os.path.join(LOGDIR, relpath, kwargs['base'], logfile)
 
     if kwargs['type'] == "video":
-        cmd = f"ffmpeg -n -i {inpath} -vcodec h264 -acodec mp2 {outpath}"
+        cmd = f'/libr/avalonmigration/bin/ffmpeg -y -nostdin -i "{inpath}" -vcodec h264 -acodec mp2 "{outpath}"'
     elif kwargs['type'] == "audio":
-        cmd = f"ffmpeg -n -i {inpath} -acodec libmp3lame {outpath}"
+        cmd = f'/libr/avalonmigration/bin/ffmpeg -y -nostdin -i "{inpath}" -acodec libmp3lame "{outpath}"'
 
     os.makedirs(os.path.dirname(logpath), exist_ok=True)
     os.makedirs(os.path.dirname(outpath), exist_ok=True)
@@ -62,15 +62,17 @@ def main():
         queue = [row for row in csv.DictReader(infile)]
         logging.warning(f'Loaded {len(queue)} items from {args.manifest}')
 
+    # Make a copy of the original manifest
+    os.rename(args.manifest, args.manifest + '.bak')
+    
     # Process each item
-    outputfile = args.manifest + '.out'
-    with open(outputfile, 'w') as outfile:
+    with open(args.manifest, 'w') as outfile:
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
-        logging.info(f'Opening {outputfile} to record results')
+        logging.info(f'Reopening {args.manifest} to record results')
         for n, item in enumerate(queue, 1):
             try:
-                if item['status'] == 'done':
+                if item['status'] == 'done' or proc_count >= args.limit:
                     skip_count += 1
                     logging.info(f"({n}) Skipping {item['base']}")
                 else:
@@ -84,9 +86,6 @@ def main():
                         logging.info(f'   -> Failed')
                         item['status'] = 'failed'
                     writer.writerow(item)
-                    # Stop processing if limit has been reached
-                    if proc_count >= args.limit:
-                        break
             except:
                 logging.info(f'Something unexpected happened.')
                 sys.exit()
