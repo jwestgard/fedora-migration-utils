@@ -130,7 +130,7 @@ dmypy.json
 
 # Project specific files
 .DS_Store
-data/input/*
-data/logs/*
-data/output/*
+transcode/data/input/*
+transcode/data/logs/*
+transcode/data/output/*
 

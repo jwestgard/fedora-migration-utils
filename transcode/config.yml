@@ -1,0 +1,5 @@
+manifest:  "manifest.csv"
+job_log:   "job_log.csv"
+sourcedir: "/libr/archives/projectsexport"
+destdir:   "/libr/avalonmigration/data"
+logdir:    "/libr/avalonmigration/logs"
