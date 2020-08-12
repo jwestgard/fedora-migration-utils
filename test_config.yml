@@ -1,6 +1,0 @@
-manifest:  "data/manifest_test.csv"
-job_log:   "test_job_log.csv"
-sourcedir: "data/input"
-destdir:   "data/output"
-logdir:    "data/logs"
-ffmpeg:    "ffmpeg"
